@@ -48,6 +48,22 @@ namespace v2p
 		return VFLOAT3(a.x / len, a.y / len, a.z / len);
 	}
 
+	float vecDot(const VFLOAT2& lhs, const VFLOAT2& rhs)
+	{
+		return lhs.x * rhs.x + lhs.y * rhs.y;
+	}
+
+	float vecCross(const VFLOAT2& lhs, const VFLOAT2& rhs)
+	{
+		return lhs.x * rhs.y - lhs.y * rhs.x;
+	}
+
+	VFLOAT2 vecNormal(const VFLOAT2& a)
+	{
+		float len = sqrt(a.x * a.x + a.y * a.y);
+		return VFLOAT2(a.x / len, a.y / len);
+	}
+
 	P_VMATRIX44 getPerspectiveRH(float w, float h, float zn, float zf)
 	{
 		return P_VMATRIX44(new VMATRIX44({
@@ -107,5 +123,15 @@ namespace v2p
 			   0.0f,    0.0f,    0.0f, 1.0f
 			}
 		));
+	}
+
+	int lineTest(const VFLOAT2& a, const VFLOAT2& b, const VFLOAT2& c)
+	{
+		VFLOAT2 ca = c - a, cb = c - b;
+		if (vecCross(cb, ca) >= 0.0f)
+		{
+			return 1;
+		}
+		return 0;
 	}
 }

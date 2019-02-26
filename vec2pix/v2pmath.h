@@ -155,6 +155,15 @@ namespace v2p
 	// Vec3f normalize
 	VFLOAT3 vecNormal(const VFLOAT3& a);
 
+	// Vec2f dot product
+	float vecDot(const VFLOAT2&, const VFLOAT2&);
+
+	// Vec2f cross product
+	float vecCross(const VFLOAT2&, const VFLOAT2&);
+
+	// Vec2f normalize
+	VFLOAT2 vecNormal(const VFLOAT2&);
+
 	/************************************************************************************
 	Matrix functions
 	************************************************************************************/
@@ -185,6 +194,20 @@ namespace v2p
 	P_VMATRIX44 getLookAtRH(const VFLOAT3& pEye, const VFLOAT3& pAt, const VFLOAT3& pUp);
 
 	// TODO: getLookAtFovRH()
+
+	/************************************************************************************
+	Others - - - - ¤½¤ÎËû
+	************************************************************************************/
+	/**
+	Simple line test.
+	If c is on line ab or c is at the right side of a->b, then return 1. 0 otherwise.
+	Args:
+	a - Point a
+	b - Point b
+	c - Point c
+	**/
+	int lineTest(const VFLOAT2& a, const VFLOAT2& b, const VFLOAT2& c);
+
 }
 
 #endif
