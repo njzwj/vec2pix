@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="v2pbase.cpp" />
     <ClCompile Include="v2pmath.cpp" />
     <ClCompile Include="vec2pix.cpp" />
   </ItemGroup>
@@ -158,6 +159,7 @@
     <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="v2pbase.h" />
     <ClInclude Include="v2pmath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
