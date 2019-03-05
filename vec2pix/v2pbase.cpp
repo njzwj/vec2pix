@@ -77,7 +77,7 @@ namespace v2p
 
 		// prepare interpolation
 		// posH = [x y z w] in which w = -Pz
-#define Q(v) VFLOAT3(v.x, v.y, 1.0f/v.w)
+#define Q(v) VFLOAT3(v.x/v.w, v.y/v.w, 1.0f/v.w)
 		VFLOAT3 q0 = Q(vertexPosH[a]),
 			q1 = Q(vertexPosH[b]),
 			q2 = Q(vertexPosH[c]);
@@ -106,10 +106,10 @@ namespace v2p
 				}
 				
 				// perspective-correct interpolation
-				calcST(q01.x, q02.x, q01.y, q02.y, p2.x, p2.y, s, t);
-				z_inv = (1.0f - s - t)*q0.z + s * q1.z + t * q2.z;		// 1 / -P'z = w' = z_inv
-				s = s / z_inv;
-				t = t / z_inv;
+				calcST(q01.x, q02.x, q01.y, q02.y, p2.x - q0.x, p2.y - q0.y, s, t);
+				z_inv = (1.0f - s - t) * q0.z + s * q1.z + t * q2.z;		// 1 / -P'z = w' = z_inv
+				s = s / z_inv * q1.z;
+				t = t / z_inv * q2.z;
 
 				// orth-z interpolation z_ndc = PHz * PHw = PHz / -Pz
 				z_ndc = (1.0f - s - t) * vertexPosH[a].z + s * vertexPosH[b].z + t * vertexPosH[c].z;
@@ -121,12 +121,24 @@ namespace v2p
 				}
 
 				frag.uv = VUINT2(xI, yI);
-				frag.position = (1.0f - s - t) * vertexBuffer[a].position + 
+				frag.position = 
+					(1.0f - s - t) * vertexBuffer[a].position + 
 					s * vertexBuffer[b].position + 
 					t * vertexBuffer[c].position;
-				frag.color = (1.0f - s - t) * vertexBuffer[a].color +
-					s * vertexBuffer[b].color + 
+				frag.color = 
+					(1.0f - s - t) * vertexBuffer[a].color +
+				 	s * vertexBuffer[b].color + 
 					t * vertexBuffer[c].color;
+				/*
+				if (s < 1.0f && s > 0.0f && t < 1.0f && t > 0.0f)
+				{
+					frag.color = { 1.0f, 1.0f, 1.0f };
+				}
+				else
+				{
+					frag.color = { 0.0f, 1.0f, 1.0f };
+				}
+				*/
 				frag.z = z_ndc;
 
 				fragmentBuffer.push_back(frag);
