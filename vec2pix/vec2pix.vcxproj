@@ -157,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
+    <None Include="svpng.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="v2pbase.h" />
