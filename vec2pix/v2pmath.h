@@ -78,7 +78,7 @@ namespace v2p
 		VUINT2(const VUINT2&) = default;
 		VUINT2& operator=(const VUINT2&) = default;
 		VUINT2(VUINT2&&) = default;
-		VUINT2& operator=(const VUINT2&) = default;
+		VUINT2& operator=(VUINT2&&) = default;
 
 		VUINT2(uint32_t _x, uint32_t _y) :x(_x), y(_y) {}
 	};
@@ -102,7 +102,7 @@ namespace v2p
 		VMATRIX44(const VMATRIX44&) = default;
 		VMATRIX44& operator=(const VMATRIX44&) = default;
 		VMATRIX44(VMATRIX44&&) = default;
-		VMATRIX44& operator=(const VMATRIX44&) = default;
+		VMATRIX44& operator=(VMATRIX44&&) = default;
 
 		// Mat4 * Vec4 -> Vec4
 		VFLOAT4 mulVec4(const VFLOAT4& a)
@@ -134,7 +134,7 @@ namespace v2p
 			);
 		}
 	};
-	typedef auto_ptr<VMATRIX44> P_VMATRIX44;
+	typedef unique_ptr<VMATRIX44> P_VMATRIX44;
 
 	// TODO: Add quaternion support.
 
@@ -203,7 +203,7 @@ namespace v2p
 
 	/**
 	Simple line test.
-	If c is on line ab or c is at the right side of a->b, then return 1. 0 otherwise.
+	If c is on line ab or c is at the left side of a->b, then return 1. 0 otherwise.
 	Args:
 	a - Point a
 	b - Point b

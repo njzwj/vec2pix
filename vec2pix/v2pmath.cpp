@@ -17,7 +17,7 @@ namespace v2p
 
 	P_VMATRIX44 matMul(const P_VMATRIX44& lhs, const P_VMATRIX44& rhs)
 	{
-		P_VMATRIX44 pMat;
+		P_VMATRIX44 pMat = P_VMATRIX44(new VMATRIX44());
 		for (uint16_t i = 0; i < 4; ++i)
 			for (uint16_t j = 0; j < 4; ++j)
 				pMat->m[i][j] =
@@ -117,9 +117,9 @@ namespace v2p
 		VFLOAT3 xaxis = vecNormal(vecCross(pUp, zaxis));
 		VFLOAT3 yaxis = vecCross(zaxis, xaxis);
 		return P_VMATRIX44(new VMATRIX44({
-			xaxis.x, xaxis.y, xaxis.z, vecDot(xaxis, pEye),
-			yaxis.x, yaxis.y, yaxis.z, vecDot(yaxis, pEye),
-			zaxis.x, zaxis.y, zaxis.z, vecDot(zaxis, pEye),
+			xaxis.x, xaxis.y, xaxis.z, -vecDot(xaxis, pEye),
+			yaxis.x, yaxis.y, yaxis.z, -vecDot(yaxis, pEye),
+			zaxis.x, zaxis.y, zaxis.z, -vecDot(zaxis, pEye),
 			   0.0f,    0.0f,    0.0f, 1.0f
 			}
 		));
@@ -128,7 +128,7 @@ namespace v2p
 	int lineTest(const VFLOAT2& a, const VFLOAT2& b, const VFLOAT2& c)
 	{
 		VFLOAT2 ca = c - a, cb = c - b;
-		if (vecCross(cb, ca) >= 0.0f)
+		if (vecCross(cb, ca) <= 0.0f)
 		{
 			return 1;
 		}

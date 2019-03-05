@@ -30,7 +30,8 @@ namespace v2p
 	{
 		VFLOAT3 position;
 		VFLOAT3 color;
-		float w;
+		VUINT2 uv;
+		float z;
 		FRAGMENT() = default;
 		FRAGMENT(const FRAGMENT&) = default;
 		FRAGMENT& operator=(const FRAGMENT&) = default;

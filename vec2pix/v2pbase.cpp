@@ -88,8 +88,8 @@ namespace v2p
 		VFLOAT2 p2;
 		FRAGMENT frag;
 		float s, t;
-		float z_inv;
-		for (uint16_t yI = topI; yI <= bottomI; ++yI)
+		float z_inv, z_ndc;
+		for (uint16_t yI = bottomI; yI <= topI; ++yI)
 		{
 			for (uint16_t xI = leftI; xI <= rightI; ++xI)
 			{
@@ -107,17 +107,27 @@ namespace v2p
 				
 				// perspective-correct interpolation
 				calcST(q01.x, q02.x, q01.y, q02.y, p2.x, p2.y, s, t);
-				z_inv = (1.0f - s - t)*q0.z + s * q1.z + t * q2.z;
+				z_inv = (1.0f - s - t)*q0.z + s * q1.z + t * q2.z;		// 1 / -P'z = w' = z_inv
 				s = s / z_inv;
 				t = t / z_inv;
 
+				// orth-z interpolation z_ndc = PHz * PHw = PHz / -Pz
+				z_ndc = (1.0f - s - t) * vertexPosH[a].z + s * vertexPosH[b].z + t * vertexPosH[c].z;
+				z_ndc = z_ndc * z_inv;
+				// late z-test
+				if (z_ndc < EPS || z_ndc > 1.0f)
+				{
+					continue;
+				}
+
+				frag.uv = VUINT2(xI, yI);
 				frag.position = (1.0f - s - t) * vertexBuffer[a].position + 
 					s * vertexBuffer[b].position + 
 					t * vertexBuffer[c].position;
 				frag.color = (1.0f - s - t) * vertexBuffer[a].color +
 					s * vertexBuffer[b].color + 
 					t * vertexBuffer[c].color;
-				frag.w = z_inv;
+				frag.z = z_ndc;
 
 				fragmentBuffer.push_back(frag);
 			}
@@ -135,14 +145,25 @@ namespace v2p
 		// Project vertex to homogeneous clip space
 		P_VMATRIX44 tMat = matMul(projectionM, world2cameraM);
 		vector<VFLOAT4> vertexPosH;
+		vector<bool> vertexClip;	// early z clip, if z < 0 then clip
 		for (auto x : vertexBuffer)
 		{
 			VFLOAT4 posH = tMat->mulVec3(x.position);
 			vertexPosH.push_back(posH);
+			vertexClip.push_back(posH.w < 0 ? true : false);
 		}
 		
 		// Traverse triangles
-		// TODO: Traverse triangles
+		for (uint16_t i = 0; i < indexBuffer.size(); i += 3)
+		{
+			uint16_t a, b, c;
+			a = indexBuffer[i];
+			b = indexBuffer[i + 1];
+			c = indexBuffer[i + 2];
+			// early z test
+			if (vertexClip[a] || vertexClip[b] || vertexClip[c]) continue;
+			fillAndInterpolateTriangle(vertexBuffer, vertexPosH, fragmentBuffer, a, b, c, width, height);
+		}
 	}
 
 }
