@@ -71,9 +71,9 @@ namespace v2p
 
 		// get pixel space boundary
 		leftI = max((uint16_t)0, static_cast<uint16_t>(left * width));
-		topI = max((uint16_t)0, static_cast<uint16_t>(top * height));
+		topI = min((uint16_t)(height - 1), static_cast<uint16_t>(top * height));
 		rightI = min((uint16_t)(width - 1), static_cast<uint16_t>(right * width));
-		bottomI = min((uint16_t)(height - 1), static_cast<uint16_t>(bottom * height));
+		bottomI = max((uint16_t)0, static_cast<uint16_t>(bottom * height));
 
 		// prepare interpolation
 		// posH = [x y z w] in which w = -Pz
@@ -129,16 +129,6 @@ namespace v2p
 					(1.0f - s - t) * vertexBuffer[a].color +
 				 	s * vertexBuffer[b].color + 
 					t * vertexBuffer[c].color;
-				/*
-				if (s < 1.0f && s > 0.0f && t < 1.0f && t > 0.0f)
-				{
-					frag.color = { 1.0f, 1.0f, 1.0f };
-				}
-				else
-				{
-					frag.color = { 0.0f, 1.0f, 1.0f };
-				}
-				*/
 				frag.z = z_ndc;
 
 				fragmentBuffer.push_back(frag);
