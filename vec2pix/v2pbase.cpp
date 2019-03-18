@@ -5,6 +5,42 @@ using namespace std;
 
 namespace v2p
 {
+	// Base 2D Buffer
+	template<typename T>
+	void BUFFER2D<T>::fill(T x)
+	{
+		for (size_t i = 0; i < width * height * sizeof(T); ++i)
+		{
+			this->buffer[i] = x;
+		}
+	}
+
+	template<typename T>
+	uint16_t BUFFER2D<T>::getWidth()
+	{
+		return this->width;
+	}
+
+	template<typename T>
+	uint16_t BUFFER2D<T>::getHeight()
+	{
+		return this->height;
+	}
+
+	template<typename T>
+	void BUFFER2D<T>::setBuffer(uint16_t x, uint16_t y, const T& buf)
+	{
+		uint32_t p = (uint32_t)y * width + x;
+		this->buffer[p] = buf;
+	}
+
+	template<typename T>
+	T BUFFER2D<T>::getBuffer(uint16_t x, uint16_t y)
+	{
+		uint32_t p = (uint32_t)y * width + x;
+		return this->buffer[p];
+	}
+
 
 	template<typename T>
 	inline T min3(const T& a, const T& b, const T& c)

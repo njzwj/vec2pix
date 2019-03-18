@@ -39,6 +39,28 @@ namespace v2p
 		FRAGMENT& operator=(FRAGMENT&&) = default;
 	};
 
+	// Base 2D Buffer
+	template<typename T>
+	class BUFFER2D
+	{
+	public:
+		unique_ptr<T[]> buffer;
+
+		BUFFER2D(uint16_t _w, uint16_t _h) :
+			width(_w), height(_h)
+		{
+			this->buffer = unique_ptr<T[]>(new T[_w * _h * sizeof(T)]);
+		}
+		void fill(T);
+		uint16_t getWidth();
+		uint16_t getHeight();
+		void setBuffer(uint16_t, uint16_t, const T&);
+		T getBuffer(uint16_t, uint16_t);
+	private:
+		uint16_t width;
+		uint16_t height;
+	};
+
 	/**
 	Rasterize triangles. Project 3d vertexes into homogeneous clip space.
 	Rasterize triangles, interpolate attributes and output to fragmentBuffer.
