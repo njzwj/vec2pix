@@ -74,6 +74,8 @@ namespace v2p
 	{
 		VFLOAT3 position;
 		VFLOAT3 color;
+		VFLOAT2 texCoord;
+		VFLOAT3 normal;
 		VERTEX() = default;
 		VERTEX(const VERTEX&) = default;
 		VERTEX& operator=(const VERTEX&) = default;
@@ -86,6 +88,8 @@ namespace v2p
 	{
 		VFLOAT3 position;
 		VFLOAT3 color;
+		VFLOAT3 normal;
+		VFLOAT2 texCoord;
 		VUINT2 uv;
 		float z;
 		FRAGMENT() = default;
@@ -118,7 +122,7 @@ namespace v2p
 	};
 
 	/**
-	Rasterize triangles. Project 3d vertexes into homogeneous clip space.
+	Rasterize triangles. Project 3d vertices into homogeneous clip space.
 	Rasterize triangles, interpolate attributes and output to fragmentBuffer.
 	Args:
 	vertexBuffer   - A vector that contains vertex info.
@@ -136,6 +140,33 @@ namespace v2p
 		const P_VMATRIX44& world2cameraM,
 		const P_VMATRIX44& projectionM,
 		uint16_t width, uint16_t height);
+
+
+	/************************
+	Primitives and rasterization
+	*************************/
+	struct PRIMITIVE_VERTEX
+	{
+		VFLOAT3 position;
+		VFLOAT4 posH;
+		VFLOAT3 color;
+		VFLOAT3 normal;
+		VFLOAT2 texCoord;
+	};
+
+	/**
+	Rasterize traiangle from preimitive
+	Args:
+	a, b, c          - Vertices of premitives.
+	frag_buffer      - Vector of fragment buffer.
+	width            - Output device width.
+	height           - Output device height.
+	**/
+	void rasterizeTriangle(
+		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c,
+		vector<FRAGMENT>& frag_buffer,
+		uint16_t width, uint16_t height
+	);
 }
 
 
