@@ -10,9 +10,65 @@ using namespace std;
 namespace v2p
 {
 	/********************************
+	Array Buffer
+	********************************/
+	struct ARRAY_BUFFER_DESC
+	{
+		const char *name;
+		enum ARRAY_BUFFER_USAGE
+		{
+			POSITION = 0,
+			POSITION_H,
+			NORMAL,
+			TEX_COORD,
+			COLOR,
+			INDEX
+		} usage;
+		size_t offset;
+		size_t size;
+
+		ARRAY_BUFFER_DESC() = default;
+		ARRAY_BUFFER_DESC(const ARRAY_BUFFER_DESC&) = default;
+		ARRAY_BUFFER_DESC& operator=(const ARRAY_BUFFER_DESC&) = default;
+		ARRAY_BUFFER_DESC(ARRAY_BUFFER_DESC&&) = default;
+		ARRAY_BUFFER_DESC& operator=(ARRAY_BUFFER_DESC&&) = default;
+	};
+
+	struct ARRAY_BUFFER
+	{
+		uint8_t *p;
+		size_t size;
+		ARRAY_BUFFER() :p(nullptr), size(0) {}
+		ARRAY_BUFFER(size_t _size) :p(nullptr), size(_size)
+		{
+			p = new uint8_t[_size];
+		}
+		~ARRAY_BUFFER()
+		{
+			delete[] p;
+		}
+
+		void expand(size_t expansion)
+		{
+			uint8_t *p1 = new uint8_t[size + expansion];
+			if (p != nullptr)
+			{
+				memcpy(p1, p, size);
+				delete[] p;
+			}
+			p = p1;
+			size += expansion;
+		}
+		void add(const void* _src, const ARRAY_BUFFER_DESC& _desc)
+		{
+			memcpy(p + _desc.offset, _src, _desc.size);
+		}
+	};
+
+
+	/********************************
 	Base vertex and fragment
 	********************************/
-
 	// Base vertex
 	struct VERTEX
 	{
@@ -80,7 +136,6 @@ namespace v2p
 		const P_VMATRIX44& world2cameraM,
 		const P_VMATRIX44& projectionM,
 		uint16_t width, uint16_t height);
-
 }
 
 
