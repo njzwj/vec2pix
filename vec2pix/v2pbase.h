@@ -111,11 +111,23 @@ namespace v2p
 		{
 			this->buffer = unique_ptr<T[]>(new T[_w * _h * sizeof(T)]);
 		}
-		void fill(T);
-		uint16_t getWidth();
-		uint16_t getHeight();
-		void setBuffer(uint16_t, uint16_t, const T&);
-		T getBuffer(uint16_t, uint16_t);
+		void fill(T x)
+		{
+			for (size_t i = 0; i < width * height * sizeof(T); ++i)
+				this->buffer[i] = x;
+		}
+		uint16_t getWidth() { return this->width; }
+		uint16_t getHeight() { return this->height; }
+		void setBuffer(uint16_t x, uint16_t y, T buf) 
+		{
+			uint32_t p = (uint32_t)y * width + x;
+			this->buffer[p] = buf;
+		}
+		T getBuffer(uint16_t x, uint16_t y)
+		{
+			uint32_t p = (uint32_t)y * width + x;
+			return this->buffer[p];
+		}
 	private:
 		uint16_t width;
 		uint16_t height;
