@@ -49,7 +49,7 @@ namespace v2p
 		return (1 - s - t)*a + s * b + t * c;
 	}
 
-	void rasterizeTriangleByIndex(
+	void RasterizeTriangleByIndex(
 		const vector<VERTEX>& vertexBuffer,
 		const vector<uint16_t>& indexBuffer,
 		vector<FRAGMENT>& fragmentBuffer,

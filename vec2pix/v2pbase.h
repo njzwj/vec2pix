@@ -145,7 +145,7 @@ namespace v2p
 	width          - Integer that represents output device width.
 	height         - Integer that represents output device height.
 	**/
-	void rasterizeTriangleByIndex(
+	void RasterizeTriangleByIndex(
 		const vector<VERTEX>& vertexBuffer, 
 		const vector<uint16_t>& indexBuffer, 
 		vector<FRAGMENT>& fragmentBuffer,
