@@ -38,5 +38,8 @@
     <ClInclude Include="v2pbase.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="drawcon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
