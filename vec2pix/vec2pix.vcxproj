@@ -161,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="drawcon.h" />
+    <ClInclude Include="drawgdi.h" />
     <ClInclude Include="v2pbase.h" />
     <ClInclude Include="v2pmath.h" />
   </ItemGroup>

@@ -8,12 +8,12 @@
 
 const uint16_t UCODE_SHADE[] = { 0x2591, 0x2592, 0x2593, 0x2588, 0x2592, 0x2593, 0x2588, 0x2588 };
 
-HANDLE h_console;
-SMALL_RECT write_rect;
-CHAR_INFO *chi_buffer = NULL;
-COORD coord_buf_size;
-COORD coord_buf_coord;
-uint16_t width, height;
+static HANDLE h_console;
+static SMALL_RECT write_rect;
+static CHAR_INFO *chi_buffer = NULL;
+static COORD coord_buf_size;
+static COORD coord_buf_coord;
+static uint16_t width, height;
 
 CHAR_INFO* InitDrawBuffer(HANDLE h_con, uint16_t w, uint16_t h)
 {
