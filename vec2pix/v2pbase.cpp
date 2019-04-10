@@ -50,12 +50,11 @@ namespace v2p
 	}
 
 	void RasterizeTriangleByIndex(
+		DEVICE *device,
 		const vector<VERTEX>& vertexBuffer,
 		const vector<uint16_t>& indexBuffer,
-		vector<FRAGMENT>& fragmentBuffer,
 		const P_VMATRIX44& world2cameraM,
-		const P_VMATRIX44& projectionM,
-		uint16_t width, uint16_t height)
+		const P_VMATRIX44& projectionM)
 	{
 		// Project vertex to homogeneous clip space
 		P_VMATRIX44 tMat = matMul(projectionM, world2cameraM);
@@ -86,21 +85,22 @@ namespace v2p
 				pb = { vb.position, vertexPosH[b], vb.color, vb.normal, vb.texCoord },
 				pc = { vc.position, vertexPosH[c], vc.color, vc.normal, vc.texCoord };
 			// rasterization
-			rasterizeTriangle(pa, pb, pc, fragmentBuffer, width, height);
+			RasterizeTriangle(device, pa, pb, pc);
 		}
 	}
 
-	void rasterizeTriangle(
-		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c,
-		vector<FRAGMENT>& frag_buffer,
-		uint16_t width, uint16_t height
+	void RasterizeTriangle(
+		DEVICE *device,
+		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c
 	)
 	{
+		long width = device->width, height = device->height;
+		vector<FRAGMENT>& frag_buffer = device->frag_buffer;
 		// a very clear & detailed interpolation solution: 
 		// https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
 		
 		float left, top, right, bottom;
-		uint16_t leftI, topI, rightI, bottomI;
+		long leftI, topI, rightI, bottomI;
 		// prepare interpolation
 		// posH = [x y z w] in which w = -Pz
 #define Q(v) VFLOAT3(v.x/v.w, v.y/v.w, 1.0f/v.w)
@@ -117,19 +117,19 @@ namespace v2p
 		top = max3(q0.y, q1.y, q2.y) / 2.0f + 0.5f;
 
 		// get pixel space boundary
-		leftI = max((uint16_t)0, static_cast<uint16_t>(left * width));
-		topI = min((uint16_t)(height - 1), static_cast<uint16_t>(top * height));
-		rightI = min((uint16_t)(width - 1), static_cast<uint16_t>(right * width));
-		bottomI = max((uint16_t)0, static_cast<uint16_t>(bottom * height));
+		leftI = max(0L, (long)(left * width));
+		topI = min(height - 1, (long)(top * height));
+		rightI = min(width - 1, (long)(right * width));
+		bottomI = max(0L, (long)(bottom * height));
 
 		// traverse pixels
 		VFLOAT2 p2;
 		FRAGMENT frag;
 		float s, t;
 		float z_inv, z_ndc;
-		for (uint16_t yI = bottomI; yI <= topI; ++yI)
+		for (long yI = bottomI; yI <= topI; ++yI)
 		{
-			for (uint16_t xI = leftI; xI <= rightI; ++xI)
+			for (long xI = leftI; xI <= rightI; ++xI)
 			{
 				float x = (float)xI / width * 2.0f - 1.0f;
 				float y = (float)yI / height * 2.0f - 1.0f;

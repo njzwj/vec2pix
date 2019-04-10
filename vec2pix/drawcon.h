@@ -54,7 +54,7 @@ int DrawCon(uint8_t *scr)
 			g = (g << 8) / sq;
 			b = (b << 8) / sq;
 
-			bgc = (intensity >> 7 << 3) + (r >> 7 << 2) + (g >> 7 << 1) + (b >> 7);
+			bgc = (intensity >> 7 << 3) + ((r > 64)) + ((g > 64) << 1) + ((b > 64) << 2);
 
 			chi_buffer[pos0].Attributes = bgc;
 			chi_buffer[pos0].Char.UnicodeChar = UCODE_SHADE[(int)roundf((float)intensity / 256 * 8)];

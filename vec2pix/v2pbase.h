@@ -65,7 +65,6 @@ namespace v2p
 		}
 	};
 
-
 	/********************************
 	Base vertex and fragment
 	********************************/
@@ -133,25 +132,72 @@ namespace v2p
 		uint16_t height;
 	};
 
+	/********************************
+	Texture buffer
+	********************************/
+	struct TEXTURE_BUFFER
+	{
+		long width;
+		long height;
+		uint8_t *buffer;
+		TEXTURE_BUFFER(long _w, long _h) :width(_w), height(_h)
+		{
+			buffer = new uint8_t[_w * _h * 3];
+		}
+		~TEXTURE_BUFFER()
+		{
+			delete[] buffer;
+		}
+		void SetPixel(long x, long y, long color)
+		{
+			uint8_t *p = buffer + (y * width + x) * 3;
+			*p++ = (uint8_t)(color & 0xff);
+			*p++ = (uint8_t)((color >> 8) & 0xff);
+			*p++ = (uint8_t)((color >> 16) & 0xff);
+		}
+	};
+
+	/********************************
+	Render device
+	*********************************/
+	struct DEVICE
+	{
+		long				width;
+		long				height;
+		vector<FRAGMENT>	frag_buffer;
+		TEXTURE_BUFFER		*texture;
+		uint8_t				*frame_buffer;
+		float				*z_buffer;
+		DEVICE(long _w, long _h) :width(_w), height(_h), texture(nullptr)
+		{
+			frame_buffer = new uint8_t[_w * _h * 3];
+			z_buffer = new float[_w * _h];
+			frag_buffer.clear();
+		}
+		~DEVICE()
+		{
+			delete[] frame_buffer;
+			delete[] z_buffer;
+		}
+	};
+
+
 	/**
 	Rasterize triangles. Project 3d vertices into homogeneous clip space.
 	Rasterize triangles, interpolate attributes and output to fragmentBuffer.
 	Args:
-	vertexBuffer   - A vector that contains vertex info.
+	device         - Device pointer.
+	vertexBuffer   - Vertex info vertex.
 	indexBuffer    - A vector that contains index info. Every 3 indexes represents a triangle.
-	fragmentBuffer - Output buffer.
 	world2cameraM  - World to camera space matrix44.
 	projectionM    - Camera space to homogenous clip space matrix44.
-	width          - Integer that represents output device width.
-	height         - Integer that represents output device height.
 	**/
 	void RasterizeTriangleByIndex(
-		const vector<VERTEX>& vertexBuffer, 
-		const vector<uint16_t>& indexBuffer, 
-		vector<FRAGMENT>& fragmentBuffer,
+		DEVICE *device,
+		const vector<VERTEX>& vertexBuffer,
+		const vector<uint16_t>& indexBuffer,
 		const P_VMATRIX44& world2cameraM,
-		const P_VMATRIX44& projectionM,
-		uint16_t width, uint16_t height);
+		const P_VMATRIX44& projectionM);
 
 
 	/************************
@@ -169,15 +215,12 @@ namespace v2p
 	/**
 	Rasterize traiangle from preimitive
 	Args:
+	device           - Drawing device.
 	a, b, c          - Vertices of premitives.
-	frag_buffer      - Vector of fragment buffer.
-	width            - Output device width.
-	height           - Output device height.
 	**/
-	void rasterizeTriangle(
-		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c,
-		vector<FRAGMENT>& frag_buffer,
-		uint16_t width, uint16_t height
+	void RasterizeTriangle(
+		DEVICE *device,
+		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c
 	);
 }
 
