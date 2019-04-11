@@ -148,6 +148,13 @@ namespace v2p
 		{
 			delete[] buffer;
 		}
+		long GetPixel(long x, long y)
+		{
+			long pixel = 0;
+			uint8_t *p = buffer + (y * width + x) * 3;
+			pixel = p[0] + (p[1] << 8) + (p[2] << 16);
+			return pixel;
+		}
 		void SetPixel(long x, long y, long color)
 		{
 			uint8_t *p = buffer + (y * width + x) * 3;
@@ -157,18 +164,73 @@ namespace v2p
 		}
 	};
 
+	struct TEXTURE_BUFFER_MIPMAP
+	{
+		long width;
+		long height;
+		long level;
+		TEXTURE_BUFFER **buffer;
+		TEXTURE_BUFFER_MIPMAP(long _w, long _h, TEXTURE_BUFFER *level0) :width(_w), height(_h)
+		{
+			long _l = _w, _c[4], _r = 0, _g = 0, _b = 0;
+			level = 0;
+			while (_l) { ++level; _l >>= 1; }
+
+			// box filter
+			buffer = new TEXTURE_BUFFER*[level];
+			buffer[0] = level0;
+			for (_l = 1; _l < level; ++_l)
+			{
+				buffer[_l] = new TEXTURE_BUFFER(_w >> _l, _h >> _l);
+				for (int i = 0; i < _h >> _l; ++i)
+					for (int j = 0; j < _w >> _l; ++j)
+					{
+						_c[0] = buffer[_l - 1]->GetPixel(j << 1, i << 1);
+						_c[1] = buffer[_l - 1]->GetPixel(j << 1 | 1, i << 1);
+						_c[2] = buffer[_l - 1]->GetPixel(j << 1, i << 1 | 1);
+						_c[3] = buffer[_l - 1]->GetPixel(j << 1 | 1, i << 1 | 1);
+						for (int k = 0; j < 4; ++j)
+						{
+							_r += _c[k] & 0xff;
+							_g += (_c[k] >> 8) & 0xff;
+							_b += (_c[k] >> 16) & 0xff;
+						}
+						buffer[_l]->SetPixel(j, i, _r + (_g << 8) + (_b << 16));
+					}
+			}
+		}
+		long GetPixel(float u, float v, float w)
+		{
+			return 0L;
+		}
+		~TEXTURE_BUFFER_MIPMAP()
+		{
+			for (int i = 0; i < level; ++i)
+				delete buffer[i];
+			delete[] buffer;
+		}
+	};
+
 	/********************************
 	Render device
 	*********************************/
+	enum DEVICE_TEXTURE_FILTERING
+	{
+		OFF = 0,
+		BILINEAR,
+		TRILINEAR
+	};
+
 	struct DEVICE
 	{
-		long				width;
-		long				height;
-		vector<FRAGMENT>	frag_buffer;
-		TEXTURE_BUFFER		*texture;
-		uint8_t				*frame_buffer;
-		float				*z_buffer;
-		DEVICE(long _w, long _h) :width(_w), height(_h), texture(nullptr)
+		long						width;
+		long						height;
+		vector<FRAGMENT>			frag_buffer;
+		TEXTURE_BUFFER				*texture;
+		uint8_t						*frame_buffer;
+		float						*z_buffer;
+		DEVICE_TEXTURE_FILTERING	texture_filter_method;
+		DEVICE(long _w, long _h) :width(_w), height(_h), texture(nullptr), texture_filter_method(OFF)
 		{
 			frame_buffer = new uint8_t[_w * _h * 3];
 			z_buffer = new float[_w * _h];
