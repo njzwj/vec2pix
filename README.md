@@ -14,11 +14,6 @@
 
 ### 纹理过滤
 
-**Nearest**
-![nearest sampling](samples/texfilter_nearest-min.png)
+From left to right: nearest, bilinear, trilinear.
 
-**Bilinear**
-![bilinear sampling](samples/texfilter_bilinear-min.png)
-
-**Trilinear**
-![trilinear sampling](samples/texfilter_trilinear-min.png)
+![texture filtering](samples/texture_filtering.png)
