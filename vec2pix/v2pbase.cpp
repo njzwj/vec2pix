@@ -108,7 +108,7 @@ namespace v2p
 		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c, 
 		float eps, VFLOAT2& duxy, VFLOAT2& dvxy)
 	{
-		float s, t, z_ndc, du, dv, epsx = eps;
+		float s, t, z_ndc, du, dv, epsx = eps * 2.0f;
 		const float &azh = a.posH.z, &bzh = b.posH.z, &czh = c.posH.z;
 		VFLOAT2 _p, tex_coord;
 
@@ -121,8 +121,8 @@ namespace v2p
 		_p = VFLOAT2(p.x - eps, p.y);
 		PerspectiveCorrectInterpolation(q0, q1, q2, q01, q02, _p, azh, bzh, czh, s, t, z_ndc);
 		tex_coord = Interpolate(s, t, a.texCoord, b.texCoord, c.texCoord);
-		du = (du - tex_coord.x) / eps / 2.0f / device->width;
-		dv = (dv - tex_coord.y) / eps / 2.0f / device->height;
+		du = (du - tex_coord.x) / epsx / device->width;
+		dv = (dv - tex_coord.y) / epsx / device->height;
 		duxy.x = du;
 		dvxy.x = dv;
 		// - du/dy dv/dy
@@ -134,8 +134,8 @@ namespace v2p
 		_p = VFLOAT2(p.x, p.y - eps);
 		PerspectiveCorrectInterpolation(q0, q1, q2, q01, q02, _p, azh, bzh, czh, s, t, z_ndc);
 		tex_coord = Interpolate(s, t, a.texCoord, b.texCoord, c.texCoord);
-		du = (du - tex_coord.x) / eps / 2.0f / device->width;
-		dv = (dv - tex_coord.y) / eps / 2.0f / device->height;
+		du = (du - tex_coord.x) / epsx / device->width;
+		dv = (dv - tex_coord.y) / epsx / device->height;
 		duxy.y = du;
 		dvxy.y = dv;
 	}
@@ -209,7 +209,7 @@ namespace v2p
 				// Texture filtering du/dx dv/dx du/dy dv/dy
 				if (device->texture_filter_method == TRILINEAR)
 				{
-					GetUVPartial(device, q0, q1, q2, q01, q02, p2, a, b, c, 1e-6, frag.duxy, frag.dvxy);
+					GetUVPartial(device, q0, q1, q2, q01, q02, p2, a, b, c, 1e-4, frag.duxy, frag.dvxy);
 				}
 
 				frag_buffer.push_back(frag);
