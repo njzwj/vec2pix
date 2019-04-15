@@ -104,6 +104,42 @@ namespace v2p
 		}
 	}
 
+	void GetUVPartial(const DEVICE *device, VFLOAT3& q0, VFLOAT3& q1, VFLOAT3& q2, VFLOAT3& q01, VFLOAT3& q02, VFLOAT2& p,
+		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c, 
+		float eps, VFLOAT2& duxy, VFLOAT2& dvxy)
+	{
+		float s, t, z_ndc, du, dv, epsx = eps;
+		const float &azh = a.posH.z, &bzh = b.posH.z, &czh = c.posH.z;
+		VFLOAT2 _p, tex_coord;
+
+		// du/dx dv/dx
+		_p = VFLOAT2(p.x + eps, p.y);
+		PerspectiveCorrectInterpolation(q0, q1, q2, q01, q02, _p, azh, bzh, czh, s, t, z_ndc);
+		tex_coord = Interpolate(s, t, a.texCoord, b.texCoord, c.texCoord);
+		du = tex_coord.x;
+		dv = tex_coord.y;
+		_p = VFLOAT2(p.x - eps, p.y);
+		PerspectiveCorrectInterpolation(q0, q1, q2, q01, q02, _p, azh, bzh, czh, s, t, z_ndc);
+		tex_coord = Interpolate(s, t, a.texCoord, b.texCoord, c.texCoord);
+		du = (du - tex_coord.x) / eps / 2.0f / device->width;
+		dv = (dv - tex_coord.y) / eps / 2.0f / device->height;
+		duxy.x = du;
+		dvxy.x = dv;
+		// - du/dy dv/dy
+		_p = VFLOAT2(p.x, p.y + eps);
+		PerspectiveCorrectInterpolation(q0, q1, q2, q01, q02, _p, azh, bzh, czh, s, t, z_ndc);
+		tex_coord = Interpolate(s, t, a.texCoord, b.texCoord, c.texCoord);
+		du = tex_coord.x;
+		dv = tex_coord.y;
+		_p = VFLOAT2(p.x, p.y - eps);
+		PerspectiveCorrectInterpolation(q0, q1, q2, q01, q02, _p, azh, bzh, czh, s, t, z_ndc);
+		tex_coord = Interpolate(s, t, a.texCoord, b.texCoord, c.texCoord);
+		du = (du - tex_coord.x) / eps / 2.0f / device->width;
+		dv = (dv - tex_coord.y) / eps / 2.0f / device->height;
+		duxy.y = du;
+		dvxy.y = dv;
+	}
+
 	void RasterizeTriangle(
 		DEVICE *device,
 		const PRIMITIVE_VERTEX& a, const PRIMITIVE_VERTEX& b, const PRIMITIVE_VERTEX& c
@@ -173,7 +209,7 @@ namespace v2p
 				// Texture filtering du/dx dv/dx du/dy dv/dy
 				if (device->texture_filter_method == TRILINEAR)
 				{
-					// TODO:
+					GetUVPartial(device, q0, q1, q2, q01, q02, p2, a, b, c, 1e-6, frag.duxy, frag.dvxy);
 				}
 
 				frag_buffer.push_back(frag);

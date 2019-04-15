@@ -91,6 +91,8 @@ namespace v2p
 		VFLOAT2 texCoord;
 		VUINT2 uv;
 		float z;
+		VFLOAT2 duxy;
+		VFLOAT2 dvxy;
 		FRAGMENT() = default;
 		FRAGMENT(const FRAGMENT&) = default;
 		FRAGMENT& operator=(const FRAGMENT&) = default;
@@ -148,7 +150,7 @@ namespace v2p
 		{
 			delete[] buffer;
 		}
-		long GetPixel(long x, long y)
+		long GetPixel(long x, long y) const
 		{
 			long pixel = 0;
 			uint8_t *p = buffer + (y * width + x) * 3;
@@ -170,9 +172,12 @@ namespace v2p
 		long height;
 		long level;
 		TEXTURE_BUFFER **buffer;
-		TEXTURE_BUFFER_MIPMAP(long _w, long _h, TEXTURE_BUFFER *level0) :width(_w), height(_h)
+		TEXTURE_BUFFER_MIPMAP(TEXTURE_BUFFER *level0)
 		{
+			long _w = level0->width, _h = level0->height;
 			long _l = _w, _c[4], _r = 0, _g = 0, _b = 0;
+			width = _w;
+			height = _h;
 			level = 0;
 			while (_l) { ++level; _l >>= 1; }
 
@@ -189,19 +194,24 @@ namespace v2p
 						_c[1] = buffer[_l - 1]->GetPixel(j << 1 | 1, i << 1);
 						_c[2] = buffer[_l - 1]->GetPixel(j << 1, i << 1 | 1);
 						_c[3] = buffer[_l - 1]->GetPixel(j << 1 | 1, i << 1 | 1);
-						for (int k = 0; j < 4; ++j)
+						_r = _g = _b = 0;
+						for (int k = 0; k < 4; ++k)
 						{
 							_r += _c[k] & 0xff;
 							_g += (_c[k] >> 8) & 0xff;
 							_b += (_c[k] >> 16) & 0xff;
 						}
+						_r /= 4;
+						_g /= 4;
+						_b /= 4;
 						buffer[_l]->SetPixel(j, i, _r + (_g << 8) + (_b << 16));
 					}
 			}
 		}
-		long GetPixel(float u, float v, float w)
+		long GetPixel(long x, long y, long w) const
 		{
-			return 0L;
+			long pixel = 0L;
+			return buffer[w]->GetPixel(x, y);
 		}
 		~TEXTURE_BUFFER_MIPMAP()
 		{
@@ -226,7 +236,7 @@ namespace v2p
 		long						width;
 		long						height;
 		vector<FRAGMENT>			frag_buffer;
-		TEXTURE_BUFFER				*texture;
+		void						*texture;
 		uint8_t						*frame_buffer;
 		float						*z_buffer;
 		DEVICE_TEXTURE_FILTERING	texture_filter_method;
