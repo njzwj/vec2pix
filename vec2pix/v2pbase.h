@@ -222,6 +222,42 @@ namespace v2p
 	};
 
 	/********************************
+	Material
+	*********************************/
+	enum MATERIAL_TYPE
+	{
+		FRAMEWORK = 0x1,
+		BLINNPHONG = 0x2,
+		DIFFUSE_MAP = 0x8
+	};
+
+	struct MATERIAL
+	{
+		MATERIAL_TYPE type;
+		VFLOAT3 ambient;
+		VFLOAT3 diffuse;
+		VFLOAT3 specular;
+		float shininess;
+	};
+
+	/********************************
+	Light
+	*********************************/
+	enum LIGHT_TYPE
+	{
+		POINTLIGHT = 0
+	};
+
+	struct LIGHT
+	{
+		LIGHT_TYPE type;
+		VFLOAT3 position;
+		VFLOAT3 ambient;
+		VFLOAT3 diffuse;
+		VFLOAT3 specular;
+	};
+
+	/********************************
 	Render device
 	*********************************/
 	enum DEVICE_TEXTURE_FILTERING
@@ -235,8 +271,11 @@ namespace v2p
 	{
 		long						width;
 		long						height;
-		vector<FRAGMENT>			frag_buffer;
 		void						*texture;
+		MATERIAL					*material;
+		LIGHT						*light;
+
+		vector<FRAGMENT>			frag_buffer;
 		uint8_t						*frame_buffer;
 		float						*z_buffer;
 		DEVICE_TEXTURE_FILTERING	texture_filter_method;

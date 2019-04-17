@@ -51,6 +51,11 @@ namespace v2p
 		VFLOAT3 operator * (const VFLOAT3& rhs) const { return VFLOAT3(x * rhs.x, y * rhs.y, z * rhs.z); }
 		VFLOAT3 operator * (float rhs) const { return VFLOAT3(x * rhs, y * rhs, z * rhs); }
 		VFLOAT3 operator / (float rhs) const { return VFLOAT3(x / rhs, y / rhs, z / rhs); }
+		void clip(float _min, float _max) {
+			x = x > _max ? _max : (x < _min ? _min : x);
+			y = y > _max ? _max : (y < _min ? _min : y);
+			z = z > _max ? _max : (z < _min ? _min : z);
+		}
 	};
 
 	// Vec 4f
